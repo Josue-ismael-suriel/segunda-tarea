@@ -1,101 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
-void minymay(FILE *, char **, int *);
+#define TAMANO_MAX 1000
+
+void contarYCambiarMayusMinus(char *);
+void imprimirCambios(char *);
 
 int main(void)
 {
-    FILE *entrada;
+    char *texto = (char *)malloc(TAMANO_MAX * sizeof(char));
 
-    // Reemplaza "/ruta/completa/" con la ruta real del directorio donde se encuentran los archivos
-    const char *rutaEntrada = "prueba.txt";
-
-    // Abrir el archivo de entrada para lectura
-    if ((entrada = fopen(rutaEntrada, "r")) == NULL)
+    while (1)
     {
-        printf("No se pudo abrir el archivo de entrada %s\n", rutaEntrada);
-        return 1; // Devolver un código de error
+        printf("\n--- Menu ---\n");
+        printf("1. Ingresar un texto, contar y cambiar mayusculas/minusculas\n");
+        printf("2. Imprimir cambios\n");
+        printf("3. Salir\n");
+        printf("Ingrese su opcion: ");
+
+        int opcion;
+        scanf("%d", &opcion);
+
+        switch (opcion)
+        {
+        case 1:
+            printf("Ingrese un texto: ");
+            getchar(); // Consumir el salto de línea pendiente
+            fgets(texto, TAMANO_MAX, stdin);
+            contarYCambiarMayusMinus(texto);
+            break;
+        case 2:
+            imprimirCambios(texto);
+            break;
+        case 3:
+            free(texto); // Liberar la memoria asignada antes de salir
+            printf("Saliendo del programa.\n");
+            exit(0);
+        default:
+            printf("Opcion invalida. Por favor, ingrese una opcion valida.\n");
+        }
     }
-
-    char *contenido = NULL;
-    int tamano = 0;
-
-    minymay(entrada, &contenido, &tamano);
-
-    // Cerrar el archivo de entrada
-    fclose(entrada);
-
-    // Imprimir el contenido modificado
-    printf("%s", contenido);
-
-    // Guardar el contenido modificado en un archivo
-    FILE *salida;
-    const char *rutaSalida = "salida.txt";
-
-    // Abrir el archivo de salida para escritura
-    if ((salida = fopen(rutaSalida, "w")) == NULL)
-    {
-        printf("No se pudo abrir el archivo de salida %s\n", rutaSalida);
-        free(contenido); // Liberar la memoria asignada
-        return 1; // Devolver un código de error
-    }
-
-    // Escribir el contenido en el archivo de salida
-    fprintf(salida, "%s", contenido);
-
-    // Cerrar el archivo de salida
-    fclose(salida);
-
-    // Liberar la memoria asignada
-    free(contenido);
 
     return 0;
 }
 
-void minymay(FILE *entrada, char **contenido, int *tamano)
+void contarYCambiarMayusMinus(char *texto)
 {
-    int min = 0, may = 0;
-    char p;
+    int mayusculas = 0, minusculas = 0;
 
-    while ((p = fgetc(entrada)) != EOF)
+    for (int i = 0; texto[i] != '\0'; i++)
     {
-        if (islower(p))
+        if (isupper(texto[i]))
         {
-            may++;
-            p = toupper(p); // Convierte minúscula en mayúscula
+            mayusculas++;
+            texto[i] = tolower(texto[i]);
         }
-        else if (isupper(p))
+        else if (islower(texto[i]))
         {
-            min++;
-            p = tolower(p); // Convierte mayúscula en minúscula
+            minusculas++;
+            texto[i] = toupper(texto[i]);
         }
-
-        (*tamano)++;
-        *contenido = (char *)realloc(*contenido, *tamano * sizeof(char));
-
-        if (*contenido == NULL)
-        {
-            printf("Error al asignar memoria");
-            exit(1); // Salir con un código de error
-        }
-
-        (*contenido)[(*tamano) - 1] = p; // Almacenar el carácter modificado
     }
 
-    // Terminar la cadena con el carácter nulo
-    (*tamano)++;
-    *contenido = (char *)realloc(*contenido, *tamano * sizeof(char));
+    printf("Numero de mayusculas: %d\n", mayusculas);
+    printf("Numero de minusculas: %d\n", minusculas);
+}
 
-    if (*contenido == NULL)
-    {
-        printf("Error al asignar memoria");
-        exit(1); // Salir con un código de error
-    }
-
-    (*contenido)[(*tamano) - 1] = '\0';
-
-    // Imprimir el número de letras minúsculas y mayúsculas
-    printf("Numero de minusculas: %d\n", min);
-    printf("Numero de mayusculas: %d\n", may);
+void imprimirCambios(char *texto)
+{
+    printf("Contenido modificado almacenado en la memoria:\n");
+    printf("%s\n", texto);
 }
